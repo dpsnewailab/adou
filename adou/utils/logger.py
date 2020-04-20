@@ -21,18 +21,38 @@ def get_logger(logger_name='default', *args, **kwargs):
 
     return log
 
-def timer(func, *args, **kwargs):
+
+def timer(func, logger=None, *args, **kwargs):
     """
     Timer decorator
     """
-    log = get_logger(logger_name='Timer')
+    if logger is None:
+        logger = get_logger(logger_name='Timer')
 
     def wrapper(*args, **kwargs):
         before = time.time()
-        print(args)
         rv = func(*args, **kwargs)
         after = time.time()
-        log.info(f'{func.__name__} took {round(after - before, 5)}s for execution.')
+        logger.info(f'{func.__name__} took {round(after - before, 5)}s for execution.')
         return rv
+    
+    return wrapper
+
+
+def ignore_runtime_error(func, logger=None, *args, **kwargs):
+    """
+    Conveniently try..catch
+    """
+    if logger is None:
+        logger = get_logger(logger_name='Error')
+
+    def wrapper(*args, **kwargs):
+        try:
+            rv = func(*args, **kwargs)
+        except Exception as error:
+            logger.info(f'[{func.__name__}] {error}')
+            rv = None
+        finally:
+            return rv
     
     return wrapper
