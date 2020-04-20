@@ -1,2 +1,2 @@
 # adou
-Just some typical approaches for document understanding :book:
+Just some typical **A**pproaches for **D**ocument **U**nderstanding :book:
