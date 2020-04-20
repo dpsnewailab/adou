@@ -16,14 +16,13 @@ Just some typical **A**pproaches for **Do**cument **U**nderstanding and related 
 
 ```python
 class MyModel(adou.Model):
+    __doc__ = ...
+    schema = {'input':..., 'output':...}
+    
     def load(self, *args, **kwargs)
     def summary(self, *args, **kwargs)
     def train(self, *args, **kwargs)
     def predict(self, *args, **kwargs)
-    def help(self, *args, **kwargs):
-        def pipeline()
-        def input_schema()
-        def output_schema()
 ```
 
 ```python
