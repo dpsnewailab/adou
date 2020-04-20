@@ -15,10 +15,10 @@ Just some typical **A**pproaches for **Do**cument **U**nderstanding and related 
 #### Design Patterns
 
 ```python
-class MyModel(adou.Model):
+class MyModel(adou.Model, metaclass=adou.ModelType):
     __doc__ = ...
     schema = {'input':..., 'output':...}
-    
+
     def load(self, *args, **kwargs)
     def summary(self, *args, **kwargs)
     def train(self, *args, **kwargs)
