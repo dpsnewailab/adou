@@ -1,0 +1,1 @@
+from adou.meta.model import *
