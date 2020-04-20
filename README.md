@@ -4,10 +4,13 @@ Just some typical **A**pproaches for **Do**cument **U**nderstanding and related 
 
 ### Image
 
-- [] Document Layout Analysis.
-- [] OCR pipeline.
+- [ ] Document Layout Analysis.
+- [ ] OCR pipeline.
 
 ### Text ETL Process (Extract, Transform, Load)
 
-- [] Preprocess.
-- [] Vietnamese specific text mining toolbox. 
+- [ ] Preprocess.
+- [ ] Vietnamese specific text mining toolbox. 
+
+### Design patterns
+
