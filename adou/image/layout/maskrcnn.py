@@ -1,5 +1,7 @@
 import gc
+import sys
 import cv2
+import math
 import torch
 import pdf2image
 import numpy as np
@@ -10,7 +12,7 @@ from torchvision.transforms import functional as F
 from torchvision.models.detection.backbone_utils import resnet_fpn_backbone
 from adou.image.network.EfficientNet import EfficientNet
 from adou.image.network.FishNet import fishnet99, fishnet150, fishnet201
-
+from adou.utils.logger import MetricLogger, SmoothedValue, reduce_dict
 from adou.meta import Model, ModelType
 
 class MaskRCNN(Model, metaclass=ModelType):
@@ -212,8 +214,59 @@ class MaskRCNN(Model, metaclass=ModelType):
 
         return image
 
-    def train(self, train_set, valid_set, *args, **kwargs):
+    def train(self, train_set=None, valid_set=None, epoch=None, optimizer=None, lr_scheduler=None, *args, **kwargs):
         """
         Default training model
         """
+        assert train_set is not None, ValueError('train_set can not None')
+        assert valid_set is not None, ValueError('valid_set can not None')
+        assert epoch is not None, ValueError('epoch can not None')
+
         self.model.train()
+
+        params = [p for p in self.model.parameters() if p.requires_grad]
+        if optimizer is None:
+            optimizer = torch.optim.SGD(params, lr=0.005, momentum=0.9, weight_decay=0.0005)
+        else:
+            optimizer = optimizer
+
+        if lr_scheduler is None:
+            lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
+                                                step_size=1000,
+                                                gamma=0.978)
+        else:
+            lr_scheduler = lr_scheduler
+            
+        for ep in range(epoch): 
+            metric_logger = MetricLogger(delimiter='  ')
+            metric_logger.add_meter('lr', SmoothedValue(window_size=1, fmt='{value:.6f}'))
+            header = 'Epoch: [{}]'.format(ep)
+
+            for images, targets in metric_logger.log_every(train_set, 10, header):
+                images = list(image.to(device) for image in images)
+                targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
+
+                loss_dict = model(images, targets)
+
+                losses = sum(loss for loss in loss_dict.values())
+
+                # reduce losses over all GPUs for logging purposes
+                loss_dict_reduced = reduce_dict(loss_dict)
+                losses_reduced = sum(loss for loss in loss_dict_reduced.values())
+
+                loss_value = losses_reduced.item()
+
+                if not math.isfinite(loss_value):
+                    print("Loss is {}, stopping training".format(loss_value))
+                    print(loss_dict_reduced)
+                    sys.exit(1)
+
+                optimizer.zero_grad()
+                losses.backward()
+                optimizer.step()
+
+                if lr_scheduler is not None:
+                    lr_scheduler.step()
+
+                metric_logger.update(loss=losses_reduced, **loss_dict_reduced)
+                metric_logger.update(lr=optimizer.param_groups[0]["lr"])
