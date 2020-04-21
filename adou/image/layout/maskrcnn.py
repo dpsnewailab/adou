@@ -211,3 +211,9 @@ class MaskRCNN(Model, metaclass=ModelType):
                     image[i][j] = self.colours[_masks[i][j]]
 
         return image
+
+    def train(self, train_set, valid_set, *args, **kwargs):
+        """
+        Default training model
+        """
+        self.model.train()
