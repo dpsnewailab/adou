@@ -23,5 +23,5 @@ setup(
     include_package_data=True,
     install_requires=['torch==1.4.0',
                       'torchvision==0.5.0',
-                      'tqdm==4.32.2'],
+                      'tqdm==4.66.3'],
 )
