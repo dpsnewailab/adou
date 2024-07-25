@@ -21,7 +21,7 @@ setup(
     ],
     packages=find_packages(exclude=('example', 'test')),
     include_package_data=True,
-    install_requires=['torch==1.4.0',
+    install_requires=['torch==2.2.0',
                       'torchvision==0.5.0',
                       'tqdm==4.32.2'],
 )
